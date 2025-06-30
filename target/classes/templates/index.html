@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>HealthTrack - Actualizar Peso</title>
+</head>
+<body>
+    <h1>Monitoreo de Peso</h1>
+
+    <p>Peso actual: <span id="pesoActual" th:text="${peso} + ' kg'">70 kg</span></p>
+
+    <form action="/actualizarPeso" method="post">
+        <label for="pesoInput">Nuevo Peso (kg):</label>
+        <input type="number" step="0.1" id="pesoInput" name="nuevoPeso" required />
+        <button type="submit" id="actualizarPesoBtn">Actualizar Peso</button>
+    </form>
+
+    <p th:text="${mensaje}"></p>
+</body>
+</html>
