@@ -32,12 +32,13 @@ jobs:
       - name: Run Spring Boot app in background
         run: |
           nohup java -jar target/healthtrack-web-1.0.0-SNAPSHOT.jar > app.log 2>&1 &
-          echo "Esperando que la app esté disponible..."
+          echo "⌛ Esperando que la app esté disponible en /reset..."
           for i in {1..30}; do
-            if curl -s http://localhost:8080 | grep -q "<html"; then
-              echo "✔️ App levantada"
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/reset | grep -q "200"; then
+              echo "✅ App lista"
               break
             fi
+            echo "⏳ Intento $i: aún no disponible"
             sleep 2
           done
 
