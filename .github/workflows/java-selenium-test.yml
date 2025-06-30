@@ -15,6 +15,8 @@ jobs:
         image: selenium/standalone-chrome:latest
         ports:
           - 4444:4444
+        options: >-
+            --shm-size=2g  
 
     steps:
       - name: Checkout code
@@ -30,8 +32,8 @@ jobs:
         run: |
           echo "Waiting for Selenium Standalone Server to be ready..."
           for i in {1..30}; do
-            if curl -s http://localhost:4444/wd/hub/status | grep -q "ready"; then
-              echo "Selenium ready"
+            if curl -s http://localhost:4444/wd/hub/status | grep -q '"ready":true'; then
+              echo "✅ Selenium server is ready."
               break
             fi
             sleep 2
@@ -39,6 +41,7 @@ jobs:
 
       - name: Run tests
         env:
+          CI: true
           DISPLAY: :99
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
         run: mvn clean test
