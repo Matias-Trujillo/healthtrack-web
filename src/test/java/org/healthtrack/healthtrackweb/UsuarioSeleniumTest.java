@@ -44,10 +44,15 @@ public class UsuarioSeleniumTest {
 
     @Test
     public void testActualizarPeso() throws InterruptedException {
-        driver.get("http://localhost:8080/reset");
+        String baseUrl = System.getenv("APP_BASE_URL");
+        if (baseUrl == null) {
+            baseUrl = "http://localhost:8080"; // para pruebas locales
+        }
+
+        driver.get(baseUrl + "/reset");
         Thread.sleep(300);
 
-        driver.get("http://localhost:8080");
+        driver.get(baseUrl);
 
         WebElement pesoActual = driver.findElement(By.id("pesoActual"));
         System.out.println("Peso inicial mostrado: " + pesoActual.getText());
