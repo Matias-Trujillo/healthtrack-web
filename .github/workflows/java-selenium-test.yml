@@ -25,26 +25,30 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-        
-      - name: Build app (skip tests)
+
+      - name: Build package
         run: mvn clean package -DskipTests
-        
+
       - name: Run Spring Boot app in background
         run: |
-          nohup java -jar target/healthtrack-web-1.0.0-SNAPSHOT.jar > app.log 2>&1 &
-          echo "⌛ Esperando que la app esté disponible en /reset..."
+          nohup java -jar target/healthtrack-web-1.0.0-SNAPSHOT.jar --server.address=0.0.0.0 > app.log 2>&1 &
+          echo "Esperando que la app responda en /reset..."
           for i in {1..30}; do
             if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/reset | grep -q "200"; then
-              echo "✅ App lista"
+              echo "App lista"
               break
             fi
-            echo "⏳ Intento $i: aún no disponible"
+            echo "Intento $i: app no responde aún"
             sleep 2
           done
 
-      - name: Run Selenium Tests
+      - name: Run tests
         env:
-          CI: true
           DISPLAY: :99
-          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-        run: mvn clean test
+          SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+          CI: true
+        run: mvn test
+
+      - name: Show app logs on failure
+        if: failure()
+        run: tail -n 100 app.log
