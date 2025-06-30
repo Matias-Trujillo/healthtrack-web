@@ -15,8 +15,6 @@ jobs:
         image: selenium/standalone-chrome:latest
         ports:
           - 4444:4444
-        options: >-
-            --shm-size=2g  
 
     steps:
       - name: Checkout code
@@ -27,19 +25,23 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-
-      - name: Wait for Selenium server
+        
+      - name: Build app (skip tests)
+        run: mvn clean package -DskipTests
+        
+      - name: Run Spring Boot app in background
         run: |
-          echo "Waiting for Selenium Standalone Server to be ready..."
+          nohup java -jar target/healthtrack-web-1.0.0-SNAPSHOT.jar > app.log 2>&1 &
+          echo "Esperando que la app esté disponible..."
           for i in {1..30}; do
-            if curl -s http://localhost:4444/wd/hub/status | grep -q '"ready":true'; then
-              echo "✅ Selenium server is ready."
+            if curl -s http://localhost:8080 | grep -q "<html"; then
+              echo "✔️ App levantada"
               break
             fi
             sleep 2
           done
 
-      - name: Run tests
+      - name: Run Selenium Tests
         env:
           CI: true
           DISPLAY: :99
